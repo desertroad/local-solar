@@ -3,9 +3,10 @@ package desertroad.solar
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private const val EPSILON = 0.1
+private const val EPSILON = 0.001
 
 class CompassPointTest {
+
     @Test
     fun testOn4Wind() {
         (-3..3).forEach {
@@ -141,22 +142,22 @@ class CompassPointTest {
             assertEquals(CompassPoint.NNW, CompassPoint.closestOn16WindOf(northNorthwest))
 
             // boundaries
-            val northByEast = rotation + 11.3
-            val northeastByNorth = rotation + 33.8
-            val northeastByEast = rotation + 56.3
-            val eastByNorth = rotation + 78.8
-            val eastBySouth = rotation + 101.3
-            val southeastByEast = rotation + 123.8
-            val southeastBySouth = rotation + 146.3
-            val andSouthByEast = rotation + 168.8
-            val southByWest = rotation + 191.3
-            val southwestBySouth = rotation + 213.8
-            val southwestByWest = rotation + 236.3
-            val andWestBySouth = rotation + 258.8
-            val westByNorth = rotation + 281.3
-            val northwestByWest = rotation + 303.8
-            val northwestByNorth = rotation + 326.3
-            val northByWest = rotation + 348.8
+            val northByEast = rotation + 11.25
+            val northeastByNorth = rotation + 33.75
+            val northeastByEast = rotation + 56.25
+            val eastByNorth = rotation + 78.75
+            val eastBySouth = rotation + 101.25
+            val southeastByEast = rotation + 123.75
+            val southeastBySouth = rotation + 146.25
+            val southByEast = rotation + 168.75
+            val southByWest = rotation + 191.25
+            val southwestBySouth = rotation + 213.75
+            val southwestByWest = rotation + 236.25
+            val westBySouth = rotation + 258.75
+            val westByNorth = rotation + 281.25
+            val northwestByWest = rotation + 303.75
+            val northwestByNorth = rotation + 326.25
+            val northByWest = rotation + 348.75
 
             assertEquals(CompassPoint.N, CompassPoint.closestOn16WindOf(northByEast - EPSILON))
             assertEquals(CompassPoint.NNE, CompassPoint.closestOn16WindOf(northByEast + EPSILON))
@@ -179,8 +180,8 @@ class CompassPointTest {
             assertEquals(CompassPoint.SE, CompassPoint.closestOn16WindOf(southeastBySouth - EPSILON))
             assertEquals(CompassPoint.SSE, CompassPoint.closestOn16WindOf(southeastBySouth + EPSILON))
 
-            assertEquals(CompassPoint.SSE, CompassPoint.closestOn16WindOf(andSouthByEast - EPSILON))
-            assertEquals(CompassPoint.S, CompassPoint.closestOn16WindOf(andSouthByEast + EPSILON))
+            assertEquals(CompassPoint.SSE, CompassPoint.closestOn16WindOf(southByEast - EPSILON))
+            assertEquals(CompassPoint.S, CompassPoint.closestOn16WindOf(southByEast + EPSILON))
 
             assertEquals(CompassPoint.S, CompassPoint.closestOn16WindOf(southByWest - EPSILON))
             assertEquals(CompassPoint.SSW, CompassPoint.closestOn16WindOf(southByWest + EPSILON))
@@ -191,8 +192,8 @@ class CompassPointTest {
             assertEquals(CompassPoint.SW, CompassPoint.closestOn16WindOf(southwestByWest - EPSILON))
             assertEquals(CompassPoint.WSW, CompassPoint.closestOn16WindOf(southwestByWest + EPSILON))
 
-            assertEquals(CompassPoint.WSW, CompassPoint.closestOn16WindOf(andWestBySouth - EPSILON))
-            assertEquals(CompassPoint.W, CompassPoint.closestOn16WindOf(andWestBySouth + EPSILON))
+            assertEquals(CompassPoint.WSW, CompassPoint.closestOn16WindOf(westBySouth - EPSILON))
+            assertEquals(CompassPoint.W, CompassPoint.closestOn16WindOf(westBySouth + EPSILON))
 
             assertEquals(CompassPoint.W, CompassPoint.closestOn16WindOf(westByNorth - EPSILON))
             assertEquals(CompassPoint.WNW, CompassPoint.closestOn16WindOf(westByNorth + EPSILON))
@@ -214,37 +215,37 @@ class CompassPointTest {
             val rotation = it * 360.0
 
             val north = rotation + 0.0
-            val northByEast = rotation + 11.3
+            val northByEast = rotation + 11.25
             val northNortheast = rotation + 22.5
-            val northeastByNorth = rotation + 33.8
+            val northeastByNorth = rotation + 33.75
             val northeast = rotation + 45.0
-            val northeastByEast = rotation + 56.3
+            val northeastByEast = rotation + 56.25
             val eastNortheast = rotation + 67.5
-            val eastByNorth = rotation + 78.8
+            val eastByNorth = rotation + 78.75
             val east = rotation + 90.0
-            val eastBySouth = rotation + 101.3
+            val eastBySouth = rotation + 101.25
             val eastSoutheast = rotation + 112.5
-            val southeastByEast = rotation + 123.8
+            val southeastByEast = rotation + 123.75
             val southeast = rotation + 135.0
-            val southeastBySouth = rotation + 146.3
+            val southeastBySouth = rotation + 146.25
             val southSoutheast = rotation + 157.5
-            val andSouthByEast = rotation + 168.8
+            val southByEast = rotation + 168.75
             val south = rotation + 180.0
-            val southByWest = rotation + 191.3
+            val southByWest = rotation + 191.25
             val southSouthwest = rotation + 202.5
-            val southwestBySouth = rotation + 213.8
+            val southwestBySouth = rotation + 213.75
             val southwest = rotation + 225.0
-            val southwestByWest = rotation + 236.3
+            val southwestByWest = rotation + 236.25
             val westSouthwest = rotation + 247.5
-            val andWestBySouth = rotation + 258.8
+            val westBySouth = rotation + 258.75
             val west = rotation + 270.0
-            val westByNorth = rotation + 281.3
+            val westByNorth = rotation + 281.25
             val westNorthwest = rotation + 292.5
-            val northwestByWest = rotation + 303.8
+            val northwestByWest = rotation + 303.75
             val northwest = rotation + 315.0
-            val northwestByNorth = rotation + 326.3
+            val northwestByNorth = rotation + 326.25
             val northNorthwest = rotation + 337.5
-            val northByWest = rotation + 348.8
+            val northByWest = rotation + 348.75
 
             assertEquals(CompassPoint.N, CompassPoint.closestOn32WindOf(north))
             assertEquals(CompassPoint.NbE, CompassPoint.closestOn32WindOf(northByEast))
@@ -261,7 +262,7 @@ class CompassPointTest {
             assertEquals(CompassPoint.SE, CompassPoint.closestOn32WindOf(southeast))
             assertEquals(CompassPoint.SEbS, CompassPoint.closestOn32WindOf(southeastBySouth))
             assertEquals(CompassPoint.SSE, CompassPoint.closestOn32WindOf(southSoutheast))
-            assertEquals(CompassPoint.SbE, CompassPoint.closestOn32WindOf(andSouthByEast))
+            assertEquals(CompassPoint.SbE, CompassPoint.closestOn32WindOf(southByEast))
             assertEquals(CompassPoint.S, CompassPoint.closestOn32WindOf(south))
             assertEquals(CompassPoint.SbW, CompassPoint.closestOn32WindOf(southByWest))
             assertEquals(CompassPoint.SSW, CompassPoint.closestOn32WindOf(southSouthwest))
@@ -269,7 +270,7 @@ class CompassPointTest {
             assertEquals(CompassPoint.SW, CompassPoint.closestOn32WindOf(southwest))
             assertEquals(CompassPoint.SWbW, CompassPoint.closestOn32WindOf(southwestByWest))
             assertEquals(CompassPoint.WSW, CompassPoint.closestOn32WindOf(westSouthwest))
-            assertEquals(CompassPoint.WbS, CompassPoint.closestOn32WindOf(andWestBySouth))
+            assertEquals(CompassPoint.WbS, CompassPoint.closestOn32WindOf(westBySouth))
             assertEquals(CompassPoint.W, CompassPoint.closestOn32WindOf(west))
             assertEquals(CompassPoint.WbN, CompassPoint.closestOn32WindOf(westByNorth))
             assertEquals(CompassPoint.WNW, CompassPoint.closestOn32WindOf(westNorthwest))
