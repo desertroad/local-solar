@@ -7,7 +7,7 @@ import desertroad.solar.units.Angle.Companion.radians
 import desertroad.solar.units.Angle.Companion.rotations
 import desertroad.solar.units.Angle.Companion.sin
 import desertroad.solar.units.Angle.Companion.times
-import desertroad.solar.units.years
+import desertroad.solar.units.JAN_1_2000_UTC
 import kotlin.math.acos
 import kotlin.math.asin
 import kotlin.math.floor
@@ -15,6 +15,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.DurationUnit.DAYS
 import kotlin.time.times
 
 
@@ -56,8 +57,8 @@ class LocalSolar(val latitude: Double, val longitude: Double, val time: Long) {
         Due to its yearly cycle, there is no need to calculate the day of the year.
         Unix time can be used directly, and the formula has been adjusted to account for the difference of one day from epoch in UTC.
          */
-        val b = ((_localMeanDay.start - 80.days) / 1.years).rotations
-        9.87.minutes * sin(2 * b) - 7.67.minutes * sin(b + 78.7.degrees)
+        val d = (6.240_040_77 + 0.017_201_97 * (_localMeanDay.start - JAN_1_2000_UTC + 1.days).toDouble(DAYS)).radians
+        (-7.659 * sin(d) + 9.863 * sin(2 * d + 3.5932.radians)).minutes
     }
 
     /**
@@ -72,11 +73,12 @@ class LocalSolar(val latitude: Double, val longitude: Double, val time: Long) {
         Due to its yearly cycle, there is no need to calculate the day of the year.
         Unix time can be used directly.
          */
-        (-23.44).degrees * cos(((_localMeanDay.start + 10.days) / 1.years).rotations)
+        val n = _localMeanDay.start.toDouble(DAYS)
+        -asin(0.39779 * cos((0.98565 * (n + 10) + 1.914 * sin(0.98565.degrees * (n - 2))).degrees)).radians
     }
 
     /**
-     * The moment when the Sun contacts the observer's meridian.
+     * The time when the Sun contacts the observer's meridian.
      * https://www.timeanddate.com/astronomy/solar-noon.html
      */
     val solarNoon: Long

@@ -7,8 +7,8 @@ import kotlin.math.absoluteValue
 import kotlin.test.*
 import kotlin.time.Duration.Companion.minutes
 
-private val TIME_TOLERANCE = 2.5.minutes.inWholeMilliseconds
-private val ANGLE_TOLERANCE = 1.0.degrees.inDegrees
+private val TIME_TOLERANCE = 2.minutes.inWholeMilliseconds
+private val ANGLE_TOLERANCE = 1.degrees.inDegrees
 
 class LocalSolarTest {
 
