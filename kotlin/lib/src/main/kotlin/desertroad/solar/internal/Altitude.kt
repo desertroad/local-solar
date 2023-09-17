@@ -1,6 +1,6 @@
-package desertroad.solar
+package desertroad.solar.internal
 
-import desertroad.solar.units.Angle.Companion.degrees
+import desertroad.solar.internal.Angle.Companion.degrees
 
 /**
  * Collection for horizon boundaries based on solar altitude.

@@ -1,6 +1,7 @@
 package desertroad.solar
 
-import desertroad.solar.units.Angle
+import desertroad.solar.internal.Altitude
+import desertroad.solar.internal.Angle
 
 /**
  * Differentiation of horizon phases by altitude.

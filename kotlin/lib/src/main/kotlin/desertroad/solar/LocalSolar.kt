@@ -1,13 +1,13 @@
 package desertroad.solar
 
-import desertroad.solar.units.Angle
-import desertroad.solar.units.Angle.Companion.cos
-import desertroad.solar.units.Angle.Companion.degrees
-import desertroad.solar.units.Angle.Companion.radians
-import desertroad.solar.units.Angle.Companion.rotations
-import desertroad.solar.units.Angle.Companion.sin
-import desertroad.solar.units.Angle.Companion.times
-import desertroad.solar.units.JAN_1_2000_UTC
+import desertroad.solar.internal.Angle.Companion.cos
+import desertroad.solar.internal.Angle.Companion.degrees
+import desertroad.solar.internal.Angle.Companion.radians
+import desertroad.solar.internal.Angle.Companion.rotations
+import desertroad.solar.internal.Angle.Companion.sin
+import desertroad.solar.internal.Angle.Companion.times
+import desertroad.solar.internal.Altitude
+import desertroad.solar.internal.Angle
 import kotlin.math.acos
 import kotlin.math.asin
 import kotlin.math.floor
@@ -188,5 +188,10 @@ class LocalSolar(val latitude: Double, val longitude: Double, val time: Long) {
         addEvents(Altitude.ASTRONOMICAL, Event.ASTRONOMICAL_DAWN, Event.ASTRONOMICAL_DUSK)
 
         return events
+    }
+
+    companion object {
+        private val JAN_1_2000_UTC = 10957.days // since epoch
+
     }
 }

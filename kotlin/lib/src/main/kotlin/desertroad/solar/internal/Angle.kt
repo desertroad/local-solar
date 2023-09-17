@@ -1,4 +1,4 @@
-package desertroad.solar.units
+package desertroad.solar.internal
 
 
 @JvmInline

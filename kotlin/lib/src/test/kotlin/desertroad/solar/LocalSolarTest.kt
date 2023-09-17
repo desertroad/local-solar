@@ -1,6 +1,6 @@
 package desertroad.solar
 
-import desertroad.solar.units.Angle.Companion.degrees
+import desertroad.solar.internal.Angle.Companion.degrees
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import kotlin.math.absoluteValue
