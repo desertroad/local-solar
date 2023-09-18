@@ -1,26 +1,16 @@
 package desertroad.solar
 
 import desertroad.solar.internal.Angle.Companion.degrees
-import java.time.Instant
-import java.time.format.DateTimeFormatter
-import kotlin.math.absoluteValue
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.time.Duration.Companion.minutes
 
 private val TIME_TOLERANCE = 2.minutes.inWholeMilliseconds
 private val ANGLE_TOLERANCE = 1.degrees.inDegrees
 
 class LocalSolarTest {
-
-    val dateFormat = DateTimeFormatter.ISO_DATE_TIME
-
-    fun toEpochMillis(date: String) =
-        dateFormat.parse(date, Instant::from).toEpochMilli()
-
-    fun assertEquals(expected: Long, actual: Long, absoluteTolerance: Long) {
-        assertEquals(expected.toDouble(), actual.toDouble(), absoluteTolerance.toDouble(), "Expected <$expected>~actual<$actual> = ${(expected-actual).absoluteValue} > absolute tolerance <$absoluteTolerance>")
-    }
-
 
     @Test
     fun testOnBusan() {

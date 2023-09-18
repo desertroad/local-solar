@@ -8,9 +8,7 @@ import desertroad.solar.internal.Angle.Companion.sin
 import desertroad.solar.internal.Angle.Companion.times
 import desertroad.solar.internal.Altitude
 import desertroad.solar.internal.Angle
-import kotlin.math.acos
-import kotlin.math.asin
-import kotlin.math.floor
+import kotlin.math.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.milliseconds
@@ -28,10 +26,9 @@ import kotlin.time.times
  * - [Wikipedia - Sunrise equation](https://en.wikipedia.org/wiki/Sunrise_equation)
  * - [Wikipedia - Solar zenith angle](https://en.wikipedia.org/wiki/Solar_zenith_angle)
  */
-class LocalSolar(val latitude: Double, val longitude: Double, val time: Long) {
+class LocalSolar(val latitude: Double, val longitude: Double, time: Long) {
     private val _latitude: Angle = latitude.degrees
     private val _longitude: Angle = longitude.degrees
-    private val _sinceEpoch: Duration = time.milliseconds
 
     private val _localMeanTimeOffset: Duration = (_longitude / 1.rotations) * 1.days
 
@@ -41,7 +38,7 @@ class LocalSolar(val latitude: Double, val longitude: Double, val time: Long) {
     val localMeanDay: LongRange
         get() = _localMeanDay.start.inWholeMilliseconds..<_localMeanDay.endExclusive.inWholeMilliseconds
     private val _localMeanDay: OpenEndRange<Duration> = run {
-        val start = floor((_sinceEpoch + _localMeanTimeOffset) / 1.days) * 1.days - _localMeanTimeOffset
+        val start = floor((time.milliseconds + _localMeanTimeOffset) / 1.days) * 1.days - _localMeanTimeOffset
         start..<start + 1.days
     }
 
@@ -86,11 +83,6 @@ class LocalSolar(val latitude: Double, val longitude: Double, val time: Long) {
     private val _solarNoon: Duration = _localMeanDay.start + 0.5.days - _equationOfTime
 
     /**
-     *
-     */
-    val current: Moment by lazy { getMomentAt(_sinceEpoch) }
-
-    /**
      * TODO
      */
     val meridian: Moment by lazy { getMomentAt(_solarNoon) }
@@ -125,9 +117,11 @@ class LocalSolar(val latitude: Double, val longitude: Double, val time: Long) {
     /**
      * https://en.wikipedia.org/wiki/Solar_azimuth_angle
      */
-    private fun computeCompassAzimuth(altitude: Angle, hourAngle: Angle): Angle {
-        val cosAzimuth =
-                (sin(_declination) * cos(_latitude) - cos(_declination) * sin(_latitude) * cos(hourAngle)) / cos(altitude)
+    private fun computeAzimuth(altitude: Angle, hourAngle: Angle): Angle {
+        val cosAzimuth = (
+                sin(_declination) * cos(_latitude) -
+                        cos(_declination) * sin(_latitude) * cos(hourAngle)
+                ) / cos(altitude)
 
         val azimuth = acos(cosAzimuth.coerceIn(-1.0, 1.0)).radians
 
@@ -143,29 +137,26 @@ class LocalSolar(val latitude: Double, val longitude: Double, val time: Long) {
         if (absHourAngle.isNaN())
             return null
 
-        val halfLength = (absHourAngle / 1.rotations).days
+        fun fromHourAngle(hourAngle: Angle): Moment {
+            val sinceEpoch = _solarNoon + (hourAngle / 1.rotations).days
+            val azimuth by lazy { computeAzimuth(altitude, hourAngle) }
 
-        return listOf(-1, 1)
-                .map { sign ->
-                    val sinceEpoch = _solarNoon + sign * halfLength
-                    val hourAngle = sign * absHourAngle
-                    val azimuth by lazy { computeCompassAzimuth(altitude, hourAngle) }
+            return object : Moment(this) {
+                override val time: Long get() = sinceEpoch.inWholeMilliseconds
+                override val altitude: Double get() = altitude.inDegrees
+                override val azimuth: Double get() = azimuth.inDegrees
+            }
+        }
 
-                    object : Moment() {
-                        override val time: Long get() = sinceEpoch.inWholeMilliseconds
-                        override val altitude: Double get() = altitude.inDegrees
-                        override val azimuth: Double get() = azimuth.inDegrees
-                    }
-                }
-                .toTypedArray()
+        return arrayOf(fromHourAngle(-absHourAngle), fromHourAngle(absHourAngle))
     }
 
     private fun getMomentAt(sinceEpoch: Duration): Moment {
         val hourAngle = toHourAngle(sinceEpoch)
         val altitude by lazy { computeAltitude(hourAngle) }
-        val azimuth by lazy { computeCompassAzimuth(altitude, hourAngle) }
+        val azimuth by lazy { computeAzimuth(altitude, hourAngle) }
 
-        return object : Moment() {
+        return object : Moment(this) {
             override val time: Long get() = sinceEpoch.inWholeMilliseconds
             override val altitude: Double get() = altitude.inDegrees
             override val azimuth: Double get() = azimuth.inDegrees
@@ -190,8 +181,48 @@ class LocalSolar(val latitude: Double, val longitude: Double, val time: Long) {
         return events
     }
 
+    private fun distanceTo(latitude: Angle, longitude: Angle): Double {
+        val deltaLat = _latitude - latitude
+        val deltaLong = _longitude - longitude
+
+        val a = sin(deltaLat * 0.5) * sin(deltaLat * 0.5) +
+                cos(_latitude) * cos(latitude) *
+                sin(deltaLong * 0.5) * sin(deltaLong * 0.5)
+
+        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+        return 6371e3 * c
+    }
+
     companion object {
         private val JAN_1_2000_UTC = 10957.days // since epoch
 
+        /**
+         * To update the location and time with relatively minor differences, it allows you to reuse unnecessary repetitive calculations.
+         *
+         * @param tolerance The distance threshold (in meters) considered as close. (default = 1km)
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun tracker(tolerance: Double = 1000.0): Tracker {
+            var last: LocalSolar? = null
+
+            return Tracker { latitude, longitude, time ->
+                val prev = last
+                val distance = prev?.distanceTo(latitude.degrees, longitude.degrees)
+
+                val curr = if (distance == null || distance > tolerance || time !in prev.localMeanDay) {
+                    LocalSolar(latitude, longitude, time)
+                } else prev
+
+                last = curr
+
+                curr.getMomentAt(time)
+            }
+        }
+    }
+
+    fun interface Tracker {
+        fun track(latitude: Double, longitude: Double, time: Long): Moment
     }
 }
