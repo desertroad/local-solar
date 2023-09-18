@@ -141,8 +141,7 @@ class LocalSolar(val latitude: Double, val longitude: Double, time: Long) {
             val sinceEpoch = _solarNoon + (hourAngle / 1.rotations).days
             val azimuth by lazy { computeAzimuth(altitude, hourAngle) }
 
-            return object : Moment(this) {
-                override val time: Long get() = sinceEpoch.inWholeMilliseconds
+            return object : Moment(this, sinceEpoch.inWholeMilliseconds) {
                 override val altitude: Double get() = altitude.inDegrees
                 override val azimuth: Double get() = azimuth.inDegrees
             }
@@ -156,8 +155,7 @@ class LocalSolar(val latitude: Double, val longitude: Double, time: Long) {
         val altitude by lazy { computeAltitude(hourAngle) }
         val azimuth by lazy { computeAzimuth(altitude, hourAngle) }
 
-        return object : Moment(this) {
-            override val time: Long get() = sinceEpoch.inWholeMilliseconds
+        return object : Moment(this, sinceEpoch.inWholeMilliseconds) {
             override val altitude: Double get() = altitude.inDegrees
             override val azimuth: Double get() = azimuth.inDegrees
         }

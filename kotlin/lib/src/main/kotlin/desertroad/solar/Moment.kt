@@ -2,8 +2,7 @@ package desertroad.solar
 
 import desertroad.solar.internal.Angle.Companion.degrees
 
-abstract class Moment(val localSolar: LocalSolar) {
-    abstract val time: Long
+abstract class Moment(@JvmField val localSolar: LocalSolar, @JvmField val time: Long) {
     abstract val altitude: Double
     abstract val azimuth: Double
 
