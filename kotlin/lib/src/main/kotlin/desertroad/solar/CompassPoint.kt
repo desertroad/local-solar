@@ -3,6 +3,9 @@
 
 package desertroad.solar
 
+/**
+ *
+ */
 enum class CompassPoint(val label: String) {
     N("north"),
     NbE("north by east"),
