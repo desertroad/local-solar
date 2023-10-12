@@ -1,37 +1,30 @@
 # Local Solar
 
-This library was developed to calculate the position of the sun at a specific moment and
-the times of events such as sunrise and sunset on mobile devices.
+The library is to calculate the position of the sun at a specific moment and
+the times of events such as sunrise and sunset.
 
 Astronomical knowledge was referenced from Wikipedia and various websites.
 
 
-## Concept
+## Purpose
+Since this information can be easily calculated on mobile devices and is useful, 
 
-In the documents were referred to, explanations were based on time zones and calendar systems.
-
-However, location is represented solely by latitude and longitude, absolute points in time can be expressed using Unix timestamps.
-Time zones need only be considered when displaying time, and day of year can be substituted by the remainder when dividing the timestamp by an average Julian year.
-
-With this approach, I hoped for a simpler and more understandable implementation.
-
-Below, I briefly introduce cases where such an approach has been applied.
-
-### Equation of time
-
-$\pi \approx 3.14159$
+I aimed to provide implementations in various programming languages, especially targeting mobile platforms.
 
 
-### Declination
+## Approach
+Many of the implementations I've researched take into account the Gregorian calendar system and the local time zone.
 
+However, the actual position of the Sun moves independently of these factors. 
 
-
+Therefore, I aimed to create a simpler implementation that doesn't depend on these two systems.
 
 
 ## Implementations
 + [JVM (kotlin)](jvm)
 + dart : planned
 + swift : planned
++ python : planned
 
 
 ## License
@@ -40,5 +33,4 @@ This code is under the [MIT License](LICENSE).
 
 
 ## Additional Resources
-+ [Position of the Sun (Wikipedia)](https://en.wikipedia.org/wiki/Position_of_the_Sun)
-+ 
++ [Wikipedia: Position of the Sun](https://en.wikipedia.org/wiki/Position_of_the_Sun)
