@@ -26,9 +26,8 @@ kotlin {
 }
 
 tasks.register("javadocJar", Jar) {
-    dependsOn "dokkaJavadoc"
     archiveClassifier = "javadoc"
-    from(tasks.dokkaJavadoc.outputDirectory)
+    from(tasks.dokkaJavadoc)
 }
 
 java {
@@ -55,12 +54,29 @@ publishing {
 
                 developers {
                     developer {
-                        id = 'lulurala'
-                        name = 'Kim Heeyong'
-                        email = 'wildcaravan@gmail.com'
+                        id = "lulurala"
+                        name = "Kim Heeyong"
+                        email = "wildcaravan@gmail.com"
                     }
                 }
+
+                scm {
+                    connection = "scm:git:git://github.com/desertroad/local-solar.git"
+                    developerConnection = "scm:git:ssh://git@github.com/desertroad/local-solar.git"
+                    url = "https://github.com/desertroad/local-solar"
+                }
             }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "sonatype"
+            def releasesRepoUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            def snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            url = version.endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
+
+            credentials(PasswordCredentials)
         }
     }
 }
