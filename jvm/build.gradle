@@ -1,6 +1,9 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.9.0'
+    id 'org.jetbrains.dokka' version '1.9.0'
     id 'java-library'
+    id 'maven-publish'
+    id 'signing'
 }
 
 group = 'io.github.desertroad'
@@ -20,4 +23,48 @@ test {
 
 kotlin {
     jvmToolchain(8)
+}
+
+tasks.register("javadocJar", Jar) {
+    dependsOn "dokkaJavadoc"
+    archiveClassifier = "javadoc"
+    from(tasks.dokkaJavadoc.outputDirectory)
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            pom {
+                name = "Local Solar"
+                description = "Calculate the position of the sun at a specific moment and the times of events such as sunrise and sunset."
+                url = "https://github.com/desertroad/local-solar"
+
+                licenses {
+                    license {
+                        name = "MIT License"
+                        url = "https://opensource.org/license/mit/"
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'lulurala'
+                        name = 'Kim Heeyong'
+                        email = 'wildcaravan@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
 }
