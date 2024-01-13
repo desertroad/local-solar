@@ -1,7 +1,7 @@
 library local_solar;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
-}
+export 'src/local_solar.dart';
+export 'src/compass_point.dart';
+export 'src/event.dart';
+export 'src/moment.dart';
+export 'src/phase.dart';
