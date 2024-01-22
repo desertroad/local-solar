@@ -1,13 +1,15 @@
 package desertroad.solar
 
+import desertroad.solar.LocalSolar.Tracker
+import desertroad.solar.internal.Altitude
+import desertroad.solar.internal.Angle
 import desertroad.solar.internal.Angle.Companion.cos
 import desertroad.solar.internal.Angle.Companion.degrees
 import desertroad.solar.internal.Angle.Companion.radians
 import desertroad.solar.internal.Angle.Companion.rotations
 import desertroad.solar.internal.Angle.Companion.sin
 import desertroad.solar.internal.Angle.Companion.times
-import desertroad.solar.internal.Altitude
-import desertroad.solar.internal.Angle
+import java.util.concurrent.TimeUnit
 import kotlin.math.*
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
@@ -38,7 +40,8 @@ class LocalSolar(val latitude: Double, val longitude: Double, time: Long) {
     val localMeanDay: LongRange
         get() = _localMeanDay.start.inWholeMilliseconds..<_localMeanDay.endExclusive.inWholeMilliseconds
     private val _localMeanDay: OpenEndRange<Duration> = run {
-        val start = floor((time.milliseconds + _localMeanTimeOffset) / 1.days).days - _localMeanTimeOffset
+        val start =
+            floor((time.milliseconds + _localMeanTimeOffset) / 1.days).days - _localMeanTimeOffset
         start..<start + 1.days
     }
 
@@ -177,7 +180,7 @@ class LocalSolar(val latitude: Double, val longitude: Double, time: Long) {
         return events
     }
 
-    private fun distanceTo(latitude: Angle, longitude: Angle): Double {
+    private fun angularDistanceTo(latitude: Angle, longitude: Angle): Angle {
         val deltaLat = _latitude - latitude
         val deltaLong = _longitude - longitude
 
@@ -187,7 +190,7 @@ class LocalSolar(val latitude: Double, val longitude: Double, time: Long) {
 
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
 
-        return EARTH_RADIUS_IN_METERS * c
+        return c.radians
     }
 
     companion object {
@@ -195,30 +198,70 @@ class LocalSolar(val latitude: Double, val longitude: Double, time: Long) {
         private val JAN_1_2000_NOON_UTC = 10957.5.days // since epoch
         private const val EARTH_RADIUS_IN_METERS = 6371e3
 
-        /**
-         * To update the location and time with relatively minor differences,
-         * it allows you to reuse unnecessary repetitive calculations.
-         *
-         * @param tolerance The distance threshold (in meters) considered as close. (default = 1km)
-         */
-        @JvmStatic
-        @JvmOverloads
-        fun tracker(tolerance: Double = 1000.0): Tracker {
+        private fun tracker(angularThreshold: Angle): Tracker {
             var last: LocalSolar? = null
 
             return Tracker { latitude, longitude, time ->
                 val prev = last
-                val distance = prev?.distanceTo(latitude.degrees, longitude.degrees)
+                val angularDistance = prev?.angularDistanceTo(latitude.degrees, longitude.degrees)
 
-                val curr = if (distance == null || distance > tolerance || time !in prev.localMeanDay) {
-                    LocalSolar(latitude, longitude, time)
-                } else prev
+                val curr =
+                    if (angularDistance == null || angularDistance > angularThreshold || time !in prev.localMeanDay) {
+                        LocalSolar(latitude, longitude, time)
+                    } else prev
 
                 last = curr
 
                 curr.getMomentAt(time)
             }
         }
+
+
+        /**
+         * To update the location and time with relatively minor differences,
+         * it allows you to reuse unnecessary repetitive calculations.
+         *
+         * @param timeThreshold The time threshold for determining distance proximity.
+         *
+         * We define the latitude and longitude deviation limits as per the given angular separation.
+         * For instance, during a 1-minute interval (default), the sun moves 0.25 degrees, equivalent to approximately 27.8 km on the Earth's surface.
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun trackerByTime(timeThreshold: Long = TimeUnit.MINUTES.toMillis(1L)) =
+            tracker(1.rotations * (timeThreshold.milliseconds / 1.days))
+
+
+        /**
+         * To update the location and time with relatively minor differences,
+         * it allows you to reuse unnecessary repetitive calculations.
+         *
+         * @param degreesThreshold The angular threshold for determining distance proximity.
+         *
+         * The latitude and longitude deviation limit is set based on the given angular separation.
+         * For example, if the sun moves 1 degree (default) in 4 minutes, it corresponds to approximately 111.1 km on the Earth's surface.
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun trackerByAngle(degreesThreshold: Double = 1.0) =
+            tracker(degreesThreshold.degrees)
+
+
+        /**
+         * To update the location and time with relatively minor differences,
+         * it allows you to reuse unnecessary repetitive calculations.
+         *
+         * @param meterThreshold The distance threshold for proximity.
+         *
+         * We establish the latitude and longitude deviation limits for a given surface distance.
+         * For instance, a 10 km distance on the Earth's surface (default) translates to an angular distance of about 0.09 degrees.
+         * The sun takes approximately 21.6 seconds to cover this distance.
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun trackerByDistance(meterThreshold: Double = 10000.0) =
+            tracker((meterThreshold / EARTH_RADIUS_IN_METERS).radians)
+
 
         /**
          * @return the equation of time(in milliseconds) at a given [time]
@@ -254,8 +297,10 @@ class LocalSolar(val latitude: Double, val longitude: Double, time: Long) {
              * By dividing the unix timestamp by the length of a tropical year,
              * we can eliminate the need for a calendar system.
              */
-            val sinEL = cos(((time + 10.days) / TROPICAL_YEAR).rotations +
-                    1.914.degrees * sin(((time - 2.days) / TROPICAL_YEAR).rotations))
+            val sinEL = cos(
+                ((time + 10.days) / TROPICAL_YEAR).rotations +
+                        1.914.degrees * sin(((time - 2.days) / TROPICAL_YEAR).rotations)
+            )
 
             return asin(sin((-23.44).degrees) * sinEL).radians
         }

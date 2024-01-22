@@ -20,6 +20,8 @@ internal value class Angle(private val radianValue: Double) {
 
     operator fun div(other: Angle): Double = radianValue / other.radianValue
 
+    operator fun compareTo(other: Angle) = radianValue.compareTo(other.radianValue)
+
     companion object {
 
         val ONE_ROTATION = 360.degrees

@@ -10,31 +10,31 @@ public class LocalSolarTrackerTest {
     @Test
     public void testLocationTolerance() {
         long time = System.currentTimeMillis();
-        LocalSolar.Tracker tracker = LocalSolar.tracker(1000);
+        LocalSolar.Tracker tracker = LocalSolar.trackerByTime();
 
         // Pier 39
         LocalSolar localSolar0 = tracker.track(37.8086895, -122.4099766, time).localSolar;
 
-        // Coit tower (780m from Pier 39)
-        LocalSolar localSolar1 = tracker.track(37.8023813, -122.4059784, time).localSolar;
+        // UC Berkeley (17km from Pier 39)
+        LocalSolar localSolar1 = tracker.track(37.8701567,-122.2596229, time).localSolar;
 
         assertEquals(localSolar0, localSolar1);
 
 
-        // Ferry building (2km from Pier 39)
-        LocalSolar localSolar2 = tracker.track(37.7954513, -122.3937556, time).localSolar;
+        // Mt. Diablo (44km from Pier 39)
+        LocalSolar localSolar2 = tracker.track(37.8815904,-121.9143138, time).localSolar;
 
         assertNotEquals(localSolar0, localSolar2);
 
-        // Rincon park (544m from Ferry building)
-        LocalSolar localSolar3 = tracker.track(37.7916124, -122.3901249, time).localSolar;
+        // Brentwood city park (20km from Mt. Diablo)
+        LocalSolar localSolar3 = tracker.track(37.9337008,-121.6937548, time).localSolar;
 
         assertEquals(localSolar2, localSolar3);
     }
 
     @Test
     public void testMeanDayChanges() {
-        LocalSolar.Tracker tracker = LocalSolar.tracker();
+        LocalSolar.Tracker tracker = LocalSolar.trackerByTime();
 
         // Busan, South Korea
         double latitude = (35 + 11 / 60.0);   // 35°11'N
